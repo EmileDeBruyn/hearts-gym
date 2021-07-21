@@ -107,8 +107,8 @@ env_config = {
 }
 
 model_config = {
-    # 'use_lstm': True,
-    # 'use_attention': True,
+    'use_lstm': True,
+    'use_attention': False,
     'max_seq_len': deck_size // num_players,
     'custom_model': None,
 }
@@ -120,7 +120,7 @@ opt_metric: str = 'episode_reward_mean'
 opt_mode: str = 'max'
 
 stop_config = {
-    'timesteps_total': 2000000,
+    'timesteps_total': 200000,
 }
 
 scheduler = tune.schedulers.FIFOScheduler()

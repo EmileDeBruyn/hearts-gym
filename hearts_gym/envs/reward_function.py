@@ -52,15 +52,73 @@ class RewardFunction:
         if self.game.prev_was_illegals[player_index]:
             return -self.game.max_penalty * self.game.max_num_cards_on_hand
 
+        score = 0
+
         card = self.game.prev_played_cards[player_index]
+        hand = self.game.prev_hands[player_index]
 
         if card is None:
-            # The agent did not take a turn until now; no information
-            # to provide.
             return 0
 
+        if hand is None:
+            return 0
+
+        #### If i played a high card i get a bonus, 
+        #### but only if it didn't lead to a penalty in the round
+        if card.rank > 8:
+            if self.game.prev_trick_winner_index == player_index:
+                assert self.game.prev_trick_penalty is not None
+                score += -self.game.prev_trick_penalty
+            else:
+                score += 1
+
+        #### If i play a Queen of Spades:
+        #### and take the trick: max penalty
+        #### and dodge the trick: max bonus
+
+        if card.suit == 3: #spades
+            if card.rank == 10: #Queen
+                if self.game.prev_trick_winner_index == player_index:
+                    assert self.game.prev_trick_penalty is not None
+                    score += -26
+                else:
+                    score += 26
+
+        #### Bonus if you eliminate the suit:
+        hearts = []
+        spades = []
+        clubs = []
+        diamonds = []
+        for c in hand:
+            if c.suit == 0:
+                clubs.append(c)
+            elif c.suit == 1:
+                diamonds.append(c)
+            elif c.suit == 2:
+                hearts.append(c)
+            elif c.suit == 3:
+                spades.append(c)
+
+        empty_bonus = 0
+        if not hearts:
+           empty_bonus += 5
+        if not spades:
+           empty_bonus += 5
+        if not clubs:
+           empty_bonus += 5
+        if not diamonds:
+           empty_bonus += 5
+
+        score += empty_bonus
+
+#        if card is None:
+            # The agent did not take a turn until now; no information
+            # to provide.
+#            return 0
+
         if trick_is_over and self.game.has_shot_the_moon(player_index):
-            return self.game.max_penalty * self.game.max_num_cards_on_hand
+            score +=  self.game.max_penalty * self.game.max_num_cards_on_hand
+
 
         # penalty = self.game.penalties[player_index]
 
@@ -69,6 +127,9 @@ class RewardFunction:
 
         if self.game.prev_trick_winner_index == player_index:
             assert self.game.prev_trick_penalty is not None
-            return -self.game.prev_trick_penalty
-        return 1
+            score += -self.game.prev_trick_penalty
+        else:
+            score += 1
+
+        return score
         # return -penalty
