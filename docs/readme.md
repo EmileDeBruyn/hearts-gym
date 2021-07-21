@@ -71,6 +71,12 @@ You are done! [Head over to the usage section](#usage).
 
 ### Conda Installation
 
+Note that if you are coming from the standard installation
+instructions, you **must not** anymore use the virtual environment
+that was created (via `venv`). So please execute `deactivate` to
+deactivate the environment and delete the `env` directory. You will
+also have to re-install the requirements later on.
+
 To install a Python version different from your system's, below you
 can find instructions for
 [Miniconda](https://docs.conda.io/en/latest/miniconda.html). If you
@@ -91,17 +97,22 @@ need to [install the requirements](#installing-requirements).
 
 You will need to execute one of the following lines each time you
 start a new shell. This will activate the Python virtual environment
-we are using:
+we are using.
 
-```shell
-# On Unix:
-source ./env/bin/activate
-# On Windows:
-.\env\Scripts\activate
+- If you used the standard installation instructions:
 
-# If using Conda installation:
-conda activate hearts-gym
-```
+  ```shell
+  # On Unix:
+  source ./env/bin/activate
+  # On Windows:
+  .\env\Scripts\activate
+  ```
+
+- If you used the Conda installation instructions:
+
+  ```
+  conda activate hearts-gym
+  ```
 
 ### Training
 
@@ -116,9 +127,18 @@ like this:
 python train.py
 ```
 
-If you encounter memory errors, the simplest solution is to set a
-lower number of worker processes (`'num_workers'` in the `config`
-dictionary). By default, all CPUs and all GPUs are used.
+Common errors at this point:
+
+- If you encounter memory errors, the simplest solution is to set a
+  lower number of worker processes (`'num_workers'` in the `config`
+  dictionary). By default, all CPUs and all GPUs are used.
+- If your operating system complains about a low `ulimit`, please
+  execute `ulimit -n 8192` (or whatever your operating system
+  recommends) after activating your environment each time.
+- If you encounter GPU errors, make sure your CUDA and cuDNN versions
+  match the ones expected by your deep learning framework. You may
+  also set `num_gpus` in the `config` dictionary to 0 to forego these
+  troubles for a small loss in speed.
 
 If everything worked correctly, you should see a table summarizing
 test results of your learned agent against other agents printed on
@@ -127,7 +147,10 @@ displayed by Ray. The table looks something like this:
 
 ```python
 [...]
+# On Unix:
 (pid=10101) SystemExit: 1  # Can be ignored.
+# On Windows:
+(pid=10101) Windows fatal exception: access violation.  # Can be ignored.
 [...]
 testing took 1.23456789 seconds
 # illegal action (player 0): 0 / 52
@@ -233,7 +256,7 @@ implemented in the file
 
 For more information on this topic including what to look out for and
 how to implement multiple rule-based agents, refer to
-[`docs/rule_based_policy.md`](./rule_based_policy.md)
+[`docs/rule-based-policies.md`](./rule-based-policies.md)
 
 ### Development
 
