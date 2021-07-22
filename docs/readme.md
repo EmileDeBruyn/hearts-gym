@@ -29,7 +29,9 @@ python -m pydoc hearts_gym.envs.hearts_game.HeartsGame
 Supported Python versions are shown in `setup.py` under the
 `python_requires` argument. If your system does not have the correct
 version (it will complain at some point during the installation), you
-can [use the Conda installation instructions](#conda-installation).
+can [use the Conda installation instructions](#conda-installation). If
+you are using Conda already, you also have to use the Conda
+installation instructions.
 
 ### Environment Setup
 
@@ -227,9 +229,9 @@ different shells or allow the server to use simulated agents. When a
 client disconnects during games, they will be replaced with a randomly
 acting agent.
 
-The evaluation statistics are currently not communicated to the
-clients, so either log them on the client or check the server output
-for more information.
+To evaluate another policy, you do not need to supply a checkpoint.
+Instead, give its policy ID using `--policy_id <policy-id>`, replacing
+`<policy-id>` with the ID of the policy to evaluate.
 
 ### Configuration
 
@@ -259,6 +261,8 @@ how to implement multiple rule-based agents, refer to
 [`docs/rule-based-policies.md`](./rule-based-policies.md)
 
 ### Development
+
+#### Type Checking
 
 As Ray takes quite some time to initialize, for a faster development
 workflow, you can use [the `mypy`
