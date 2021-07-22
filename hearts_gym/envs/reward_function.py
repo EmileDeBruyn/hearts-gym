@@ -71,63 +71,12 @@ class RewardFunction:
         if self.game.prev_was_illegals[player_index]:
             return -self.game.max_penalty * self.game.max_num_cards_on_hand
 
-        #1 # If i played a high card i get a bonus, 
-        #### but only if it didn't lead to a penalty in the round
-
-        if card.rank > 8:
-            if self.game.prev_trick_winner_index == player_index:
-                assert self.game.prev_trick_penalty is not None
-                return += -self.game.prev_trick_penalty
-            else:
-                return += 1
-
-        #2 # If i play a Queen of Spades:
-        #### and take the trick: max penalty
-        #### and dodge the trick: max bonus
-
-        if card.suit == 3: #spades
-            if card.rank == 10: #Queen
-                if self.game.prev_trick_winner_index == player_index:
-                    assert self.game.prev_trick_penalty is not None
-                    return -26
-                else:
-                    return 26
-
-        #3 # Bonus if you play a spade card > Q when trick isn't openend on spades.
-        ####
-        if card.suit == 3:
-            print(table[0].suit)
-            if table[0].suit != 3:
-               print('high spades on non spade', hand, table)
-               return 5
-
-        #4 # Mega bonus if you play a spade Q when trick isn't opened on spades
-        if card.suit == 3:
-           if card.rank == 10:
-              if table[0].suit != 3:
-                 return 50
-
-        #5 # Bonus if you play a spade when you dont have a spade card > Q
-        ####
-        if card.suit == 3:
-            Queen = 'no'
-            for c in hand:
-               if c.suit == 3:
-                  if c.rank == 10:
-                      Queen = 'yes'
-                      print('queen flipped')
-            if Queen == 'yes':
-               return -5
-            elif Queen != 'yes':
-               return 5
-
-
-        #6 # Bonus if you eliminate the suit:
-        ####
+        #### DETERMINE IF THE HAND LACKS A SUIT AND GIVES BONUSES TO EACH RULE ON EMPTY SUITS
         hearts = []
         spades = []
         clubs = []
         diamonds = []
+
         for c in hand:
             if c.suit == 0:
                 clubs.append(c)
@@ -138,7 +87,6 @@ class RewardFunction:
             elif c.suit == 3:
                 spades.append(c)
 
-        empty_bonus = 0
         if not hearts:
            empty_bonus += 5
         if not spades:
@@ -148,14 +96,62 @@ class RewardFunction:
         if not diamonds:
            empty_bonus += 5
 
-        return empty_bonus
 
-        #7 # Penalty for getting trick with hearst/spades
+        #1 # If i played a high card i get a bonus, 
+        #### but only if it didn't lead to a penalty in the round
+
+        if card.rank > 8:
+            if self.game.prev_trick_winner_index == player_index:
+                assert self.game.prev_trick_penalty is not None
+                return -self.game.prev_trick_penalty + empty_bonus
+            else:
+                return 1 + empty_bonus
+
+        #2 # If i play a Queen of Spades:
+        #### and take the trick: max penalty
+        #### and dodge the trick: max bonus
+
+        if card.suit == 3: #spades
+            if card.rank == 10: #Queen
+                if self.game.prev_trick_winner_index == player_index:
+                    assert self.game.prev_trick_penalty is not None
+                    return -26 + empty_bonus
+                else:
+                    return 26 + empty_bonus
+
+        #3 # Bonus if you play a spade card > Q when trick isn't openend on spades.
+        ####
+        if card.suit == 3:
+            if card.rank > 10:
+                if table:
+                    if table[0].suit != 3:
+                        return 5 + empty_bonus
+
+        #4 # Mega bonus if you play a spade Q when trick isn't opened on spades
+        if card.suit == 3:
+           if card.rank == 10:
+              if table[0].suit != 3:
+                 return 50 + empty_bonus
+
+        #5 # Bonus if you play a spade when you dont have a spade card > Q
+        ####
+        if card.suit == 3:
+            Queen = 'no'
+            for c in hand:
+               if c.suit == 3:
+                  if c.rank == 10:
+                      Queen = 'yes'
+            if Queen == 'yes':
+               return -5 + empty_bonus
+            elif Queen != 'yes':
+               return 5 + empty_bonus
+
+
+        #6 # Penalty for getting trick with hearst/spades
         ####
         if self.game.prev_trick_winner_index == player_index:
             assert self.game.prev_trick_penalty is not None
-            return -self.game.prev_trick_penalty
+            return -self.game.prev_trick_penalty + empty_bonus
         else:
-            return 1
-
+            return 1 + empty_bonus
         # return -penalty
