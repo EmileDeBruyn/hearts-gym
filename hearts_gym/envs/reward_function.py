@@ -103,9 +103,9 @@ class RewardFunction:
         if card.rank > 8:
             if self.game.prev_trick_winner_index == player_index:
                 assert self.game.prev_trick_penalty is not None
-                return -self.game.prev_trick_penalty + empty_bonus
+                score += -self.game.prev_trick_penalty + empty_bonus
             else:
-                return 1 + empty_bonus
+                score += 1 + empty_bonus
 
         #2 # If i play a Queen of Spades:
         #### and take the trick: max penalty
@@ -115,9 +115,9 @@ class RewardFunction:
             if card.rank == 10: #Queen
                 if self.game.prev_trick_winner_index == player_index:
                     assert self.game.prev_trick_penalty is not None
-                    return -26 + empty_bonus
+                    score += -26 + empty_bonus
                 else:
-                    return 26 + empty_bonus
+                    score += 26 + empty_bonus
 
         #3 # Bonus if you play a spade card > Q when trick isn't openend on spades.
         ####
@@ -125,13 +125,13 @@ class RewardFunction:
             if card.rank > 10:
                 if table:
                     if table[0].suit != 3:
-                        return 5 + empty_bonus
+                        score += 5 + empty_bonus
 
         #4 # Mega bonus if you play a spade Q when trick isn't opened on spades
         if card.suit == 3:
            if card.rank == 10:
               if table[0].suit != 3:
-                 return 50 + empty_bonus
+                 score += 50 + empty_bonus
 
         #5 # Bonus if you play a spade when you dont have a spade card > Q
         ####
@@ -142,16 +142,18 @@ class RewardFunction:
                   if c.rank == 10:
                       Queen = 'yes'
             if Queen == 'yes':
-               return -5 + empty_bonus
+               score += -5 + empty_bonus
             elif Queen != 'yes':
-               return 5 + empty_bonus
+               score += 5 + empty_bonus
 
 
         #6 # Penalty for getting trick with hearst/spades
         ####
         if self.game.prev_trick_winner_index == player_index:
             assert self.game.prev_trick_penalty is not None
-            return -self.game.prev_trick_penalty + empty_bonus
+            score += -self.game.prev_trick_penalty + empty_bonus
         else:
-            return 1 + empty_bonus
+            score += 1 + empty_bonus
         # return -penalty
+
+        return score

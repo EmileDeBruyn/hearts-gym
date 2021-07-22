@@ -77,9 +77,9 @@ class RewardFunction:
         if card.rank > 8:
             if self.game.prev_trick_winner_index == player_index:
                 assert self.game.prev_trick_penalty is not None
-                return += -self.game.prev_trick_penalty
+                return -self.game.prev_trick_penalty
             else:
-                return += 1
+                return 1
 
         #2 # If i play a Queen of Spades:
         #### and take the trick: max penalty
@@ -96,10 +96,10 @@ class RewardFunction:
         #3 # Bonus if you play a spade card > Q when trick isn't openend on spades.
         ####
         if card.suit == 3:
-            print(table[0].suit)
-            if table[0].suit != 3:
-               print('high spades on non spade', hand, table)
-               return 5
+            if card.rank > 10:
+                if table:
+                    if table[0].suit != 3:
+                        return 5 + empty_bonus
 
         #4 # Mega bonus if you play a spade Q when trick isn't opened on spades
         if card.suit == 3:
@@ -115,7 +115,6 @@ class RewardFunction:
                if c.suit == 3:
                   if c.rank == 10:
                       Queen = 'yes'
-                      print('queen flipped')
             if Queen == 'yes':
                return -5
             elif Queen != 'yes':
