@@ -64,6 +64,14 @@ class RewardFunction:
             return 0
 
         empty_bonus = 0
+        #### If i played a high card i get a bonus, 
+        #### but only if it didn't lead to a penalty in the round
+        if card.rank > 8:
+            if self.game.prev_trick_winner_index == player_index:
+                assert self.game.prev_trick_penalty is not None
+                score += -self.game.prev_trick_penalty
+            else:
+                score += 1
 
         #### If i play a Queen of Spades:
         #### and take the trick: max penalty
@@ -110,7 +118,6 @@ class RewardFunction:
 
                 return (1 + empty_bonus)
 
-
         #### Bonus if you eliminate the suit:
         hearts = []
         spades = []
@@ -126,6 +133,7 @@ class RewardFunction:
             elif c.suit == 3:
                 spades.append(c)
 
+        empty_bonus = 0
         if not hearts:
            empty_bonus += 5
         if not spades:
@@ -153,9 +161,9 @@ class RewardFunction:
 
         if self.game.prev_trick_winner_index == player_index:
             assert self.game.prev_trick_penalty is not None
-            score += -self.game.prev_trick_penalty
+            return -self.game.prev_trick_penalty
         else:
-            score += 1
+            return 1
 
         return score
         # return -penalty
