@@ -63,14 +63,7 @@ class RewardFunction:
         if hand is None:
             return 0
 
-        #### If i played a high card i get a bonus, 
-        #### but only if it didn't lead to a penalty in the round
-        if card.rank > 8:
-            if self.game.prev_trick_winner_index == player_index:
-                assert self.game.prev_trick_penalty is not None
-                score += -self.game.prev_trick_penalty
-            else:
-                score += 1
+        empty_bonus = 0
 
         #### If i play a Queen of Spades:
         #### and take the trick: max penalty
@@ -80,9 +73,43 @@ class RewardFunction:
             if card.rank == 10: #Queen
                 if self.game.prev_trick_winner_index == player_index:
                     assert self.game.prev_trick_penalty is not None
-                    score += -26
+                    return -26
                 else:
-                    score += 26
+                    return 26
+
+        #### If i played a high card i get a bonus, 
+        #### but only if it didn't lead to a penalty in the round
+        if card.rank > 8:
+            if self.game.prev_trick_winner_index == player_index:
+                assert self.game.prev_trick_penalty is not None
+                return -self.game.prev_trick_penalty
+            else:
+                #### even better if it emtpys a suit
+                hearts = []
+                spades = []
+                clubs = []
+                diamonds = []
+                for c in hand:
+                    if c.suit == 0:
+                        clubs.append(c)
+                    elif c.suit == 1:
+                        diamonds.append(c)
+                    elif c.suit == 2:
+                        hearts.append(c)
+                    elif c.suit == 3:
+                        spades.append(c)
+
+                    if not hearts:
+                        empty_bonus += 5
+                    if not spades:
+                        empty_bonus += 5
+                    if not clubs:
+                        empty_bonus += 5
+                    if not diamonds:
+                        empty_bonus += 5
+
+                return (1 + empty_bonus)
+
 
         #### Bonus if you eliminate the suit:
         hearts = []
@@ -99,7 +126,6 @@ class RewardFunction:
             elif c.suit == 3:
                 spades.append(c)
 
-        empty_bonus = 0
         if not hearts:
            empty_bonus += 5
         if not spades:
@@ -109,7 +135,7 @@ class RewardFunction:
         if not diamonds:
            empty_bonus += 5
 
-        score += empty_bonus
+        return empty_bonus
 
 #        if card is None:
             # The agent did not take a turn until now; no information

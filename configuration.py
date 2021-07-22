@@ -107,8 +107,8 @@ env_config = {
 }
 
 model_config = {
-    'use_lstm': True,
-    'use_attention': False,
+    'use_lstm': False,
+    'use_attention': True,
     'max_seq_len': deck_size // num_players,
     'custom_model': None,
 }
